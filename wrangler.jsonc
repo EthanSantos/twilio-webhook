@@ -9,7 +9,13 @@
 	"compatibility_date": "2025-05-04",
 	"observability": {
 		"enabled": true
-	}
+	},
+	"kv_namespaces": [
+		{
+			"binding": "RATE_LIMITS",
+			"id": "bb89408867d640a7ad1311e0a3c319b6"
+		}
+	],
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

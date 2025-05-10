@@ -26,6 +26,35 @@ export default {
 			return new Response('Missing required fields', { status: 400 });
 		}
 
+		const rateLimitKey = `ratelimit:${fromPhoneNumber}`;
+		let shouldRateLimit = false;
+		
+		try {
+			// get current count from KV store
+			const storedValue = await env.RATE_LIMITS.get(rateLimitKey);
+			const currentCount = storedValue ? parseInt(storedValue) : 0;
+			
+			console.log(`Rate limit check: ${currentCount}/2 for ${fromPhoneNumber}`);
+			
+			// check if we hit the limit
+			if (currentCount >= 2) {
+				console.log(`Rate limit exceeded for ${fromPhoneNumber}`);
+				shouldRateLimit = true;
+			} else {
+				// increment and store with 60 second expiry
+				await env.RATE_LIMITS.put(rateLimitKey, (currentCount + 1).toString(), {
+					expirationTtl: 60 // seconds
+				});
+			}
+		} catch (error) {
+			console.error("Rate limiting error:", error);
+		}
+		
+		// return early if rate limited
+		if (shouldRateLimit) {
+			return createTwimlResponse("Message rate limit exceeded. Please try again later.");
+		}
+
     	const normalizedMessageBody = messageBody.toUpperCase().trim();
 
 		if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
@@ -79,7 +108,7 @@ export default {
 								responseMessage = 'Sorry, there was an error subscribing you. Please try again.';
 							}
 						} else {
-							responseMessage = 'Thanks for subscribing! Here’s the download link: https://ootd-website.vercel.app/';
+							responseMessage = "Thanks for subscribing! Here's the download link: https://ootd-website.vercel.app/";
 						}
 					}
 					break;
