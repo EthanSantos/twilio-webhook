@@ -95,7 +95,7 @@ export default {
 							console.error('Supabase insert error on help request:', insertError);
 						}
 					}
-					responseMessage = 'Need help? Join our discord: https://discord.gg/pA3xUjDT3E';
+					responseMessage = 'Need help? Join our discord: https://discord.gg/erJWg63SdP';
 					break;
 
 				default:
