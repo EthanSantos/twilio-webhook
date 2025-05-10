@@ -65,15 +65,19 @@ export default {
 					if (isSubscribed) {
 						responseMessage = "Hey! You've already got the download for the app.";
 					} else {
-						// not subscribers
-						const subscriberData = { phone_number: fromPhoneNumber };
+						// not subscribed yet
 						const { error: insertError } = await supabase
 							.from('subscribers')
-							.insert(subscriberData);
+							.insert({ phone_number: fromPhoneNumber });
 
 						if (insertError) {
-							console.error('Supabase insert error:', insertError);
-							responseMessage = 'Sorry, there was an error subscribing you. Please try again.';
+							// catch duplicate-phone errors (code 23505)
+							if (insertError.code === '23505') {
+								responseMessage = "Hey! You've already got the download for the app.";
+							} else {
+								console.error('Supabase insert error:', insertError);
+								responseMessage = 'Sorry, there was an error subscribing you. Please try again.';
+							}
 						} else {
 							responseMessage = 'Thanks for subscribing! Here’s the download link: https://ootd-website.vercel.app/';
 						}
@@ -83,10 +87,9 @@ export default {
 				case 'HELPOOTD':
 					if (!isSubscribed) {
 						// insert to our database if not subscribed
-						const subscriberData = { phone_number: fromPhoneNumber };
 						const { error: insertError } = await supabase
 							.from('subscribers')
-							.insert(subscriberData);
+							.insert({ phone_number: fromPhoneNumber });
 
 						if (insertError) {
 							console.error('Supabase insert error on help request:', insertError);
