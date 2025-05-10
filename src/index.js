@@ -37,7 +37,7 @@ export default {
 			console.log(`Rate limit check: ${currentCount}/2 for ${fromPhoneNumber}`);
 			
 			// check if we hit the limit
-			if (currentCount >= 2) {
+			if (currentCount >= 5) {
 				console.log(`Rate limit exceeded for ${fromPhoneNumber}`);
 				shouldRateLimit = true;
 			} else {
